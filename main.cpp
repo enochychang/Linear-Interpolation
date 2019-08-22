@@ -1,15 +1,28 @@
+/* The wind-tunnel test data consists of some number of tested flight-path
+angles and their corresponding coefficient of lift. Using this data, we can
+estimate, using linear interpolation, the coefficient of lift for a flight-path
+angle within the bounds of the data set, even if that particular flight-path
+angle was not tested. If we want to find the coefficient of lift for flight-path
+angle b, we find flight-path angles a and c such that a < b < c
+
+If flight-path b already exists in the given data set, then you do not need to
+use linear interpolation. However, if it doesn't exist, then linear
+interpolation assumes a straight line exists between f(a) and f(c).
+(In this case, f(a) is the coefficient of lift for flight-path angle a and f(c)
+is the coefficient of lift for flight-path angle c.)
+To find f(b), use the formula: f(b) = f(a) + (b - a)/(c - a)(f(c) - f(a)) */
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 
-// using std::cout;
-// using std::cin;
-// using std::endl;
-// using std::vector;
-// using std::string;
-// using std::ifstream;
-using namespace std;
+using std::cout;
+using std::cin;
+using std::endl;
+using std::vector;
+using std::string;
+using std::ifstream;
 
 void readData(const string&, vector<double>&, vector<double>&);
 double interpolation(double, const vector<double>&, const vector<double>&);
@@ -19,19 +32,16 @@ void reorder(vector<double>&, vector<double>&);
 int main() {
 
   string fileName;
-
   cout << "Enter name of input data file:" << endl;
   cout << endl;
   cin >> fileName;
 
   vector<double> fPath;
   vector<double> coLift;
-
   readData(fileName, fPath, coLift);
 
   double fpAngle = 0.0;
   string loop = "yes";
-
   while (loop == "yes") {
     cout << "Enter flight path angle: " << endl;
     cin >> fpAngle;
@@ -45,8 +55,13 @@ int main() {
     cin >> loop;
   }
 
-}
 
+
+/* Passes in the name of a file and two vectors (double) and stores in the first
+vector the flight-path angles (first column) and in the second vector the
+corresponding coefficients of lift (2nd column). If the file does not open
+properly, this function should output an error message and then call the exit
+function passing it an exit value of 1. */
 void readData(const string& fileName, vector<double>& fPath, vector<double>& coLift) {
 
   ifstream inFS;
@@ -68,6 +83,9 @@ void readData(const string& fileName, vector<double>& fPath, vector<double>& coL
 
 }
 
+/* Passes in the requested flight-path angle along with the 2 vectors of data
+(flight-path angles and corresponding coefficients of lift) and returns the
+corresponding coefficient of lift. */
 double interpolation(double b, const vector<double>& fPath, const vector<double>& coLift) {
 
   if (fPath.size() != 0 && coLift.size() != 0) {
@@ -81,12 +99,10 @@ double interpolation(double b, const vector<double>& fPath, const vector<double>
       if (fPath.at(i) == b) {
         return coLift.at(i);
       }
-      else if (i != fPath.size() - 1) {// && (i + 1) < fPath.size()) {
-
+      else if (i != fPath.size() - 1) {
           if (fPath.at(i) < b && fPath.at(i + 1) > b) {
             a = i;
             c = i + 1;
-
             return coLift.at(a) + ( b - fPath.at(a) ) / (fPath.at(c) - fPath.at(a) ) * ( coLift.at(c) - coLift.at(a));
           }
         }
@@ -97,6 +113,8 @@ double interpolation(double b, const vector<double>& fPath, const vector<double>
 
 }
 
+/* Passes in the vector of flight-path angles and returns true if it stores the
+angles are in ascending order, otherwise returns false. */
 bool isOrdered(const vector<double>& orderTest) {
 
   if (orderTest.size() != 0 && orderTest.size() != 1) {
@@ -110,6 +128,9 @@ bool isOrdered(const vector<double>& orderTest) {
 
 }
 
+/* Passes in both vectors of data and then reorders the data so that the
+flight-path angles are in ascending order while maintaining the correspondence
+between the flight-path angles and their corresponding coefficients of lift. */
 void reorder(vector<double>& fPath, vector<double>& coLift) {
 
   if (fPath.size() != 0 && coLift.size() != 0) {
@@ -124,7 +145,6 @@ void reorder(vector<double>& fPath, vector<double>& coLift) {
           indexSmallest = j;
         }
       }
-
       tempVal = fPath.at(i);
       fPath.at(i) = fPath.at(indexSmallest);
       fPath.at(indexSmallest) = tempVal;
