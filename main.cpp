@@ -54,8 +54,7 @@ int main() {
     cout << "Would you like to enter again: " << endl;
     cin >> loop;
   }
-
-
+}
 
 /* Passes in the name of a file and two vectors (double) and stores in the first
 vector the flight-path angles (first column) and in the second vector the
